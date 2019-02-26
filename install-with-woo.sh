@@ -62,6 +62,37 @@ echo "Username: ${wp_admin_user}"
 echo "Password: ${wp_admin_password}"
 echo "================================================================="
 
+
+cp /etc/nginx/sites-availabled/default /etc/nginx/sites-availabled/default.bkp
+cat >/etc/nginx/sites-availabled/default <<EOF
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    if ($scheme != "https") {
+        return 301 https://$host$request_uri;
+    }
+
+    listen 443 ssl default_server;
+    listen [::]:443 ssl default_server;
+    ssl_certificate /etc/ssl/certs/selfsigned.crt;
+    ssl_certificate_key /etc/ssl/private/selfsigned.key;
+
+    index index.php index.html index.htm index.nginx-debian.html;
+    server_name _;
+    root /var/www/html;
+
+    location / {
+        client_max_body_size 50m;
+        try_files $uri $uri/ /index.php$is_args$args;
+    }
+    location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        include fastcgi_params;
+        fastcgi_pass unix:/run/php/php7.2-fpm.sock;
+        }
+}
+EOF
+
 # Enable https
 sudo apt-get install -y python-certbot-nginx
 sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/selfsigned.key -out /etc/ssl/certs/selfsigned.crt -subj "/C=US/ST=Utah/L=Provo/O=Pyrofex Corp/OU=CI/CN=example.org"
