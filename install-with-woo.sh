@@ -64,7 +64,7 @@ echo "================================================================="
 
 # update wp_options set option_value='https://example.org' where option_id=1 or option_id=2;
 
-cp /etc/nginx/sites-availabled/default /etc/nginx/sites-availabled/default.bkp
+cp /etc/nginx/sites-availabled/default /etc/nginx/sites-available/default.bkp
 cat >/etc/nginx/sites-availabled/default <<EOF
 server {
     listen 80 default_server;
