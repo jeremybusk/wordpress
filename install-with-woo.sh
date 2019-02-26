@@ -61,3 +61,8 @@ echo "Url: https://${hostname}"
 echo "Username: ${wp_admin_user}"
 echo "Password: ${wp_admin_password}"
 echo "================================================================="
+
+# Enable https
+sudo apt-get install -y python-certbot-nginx
+sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/selfsigned.key -out /etc/ssl/certs/selfsigned.crt -subj "/C=US/ST=Utah/L=Provo/O=Pyrofex Corp/OU=CI/CN=example.org"
+sudo certbot
