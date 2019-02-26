@@ -62,6 +62,7 @@ echo "Username: ${wp_admin_user}"
 echo "Password: ${wp_admin_password}"
 echo "================================================================="
 
+# update wp_options set option_value='https://example.org' where option_id=1 or option_id=2;
 
 cp /etc/nginx/sites-availabled/default /etc/nginx/sites-availabled/default.bkp
 cat >/etc/nginx/sites-availabled/default <<EOF
