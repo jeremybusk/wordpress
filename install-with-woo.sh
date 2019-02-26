@@ -14,6 +14,7 @@ wp_directory='/var/www/html/'
 wp_admin_user='adminuser'
 wp_admin_email='adminuser@example.org'
 sitename='Example Site'
+siteurl='https://localhost'
 
 tmp_dir=$(mktemp -t -d "wordpress".XXXXXXXXXX) \
     || { echo "Failed to create temp file"; exit 1; }
@@ -47,7 +48,7 @@ currentdirectory=${PWD##*/}
 echo "${currentdirectory}"
 wp_admin_password=$(LC_CTYPE=C tr -dc A-Za-z0-9_\!\@\#\$\&\*\(\)-+= < /dev/urandom | head -c 12)
 wp db create
-wp core install --url="https://localhost" --title="${sitename}" --admin_user="${wp_admin_user}" --admin_password="${wp_admin_password}" --admin_email="${wp_admin_email}"
+wp core install --url="${siteurl}" --title="${sitename}" --admin_user="${wp_admin_user}" --admin_password="${wp_admin_password}" --admin_email="${wp_admin_email}"
 wp theme install twentysixteen --activate
 wp plugin install woocommerce --activate
 
