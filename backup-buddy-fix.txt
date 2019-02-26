@@ -1,0 +1,12 @@
+Disable cron. ALTERNATE_WP_CRON defined in your wp-config.php
+Find and change the value of ALTERNATE_WP_CRON from TRUE to FALSE or add define('DISABLE_CRON', true);
+
+vim /var/www/html/wp-config.php
+
+# define('ALTERNATE_WP_CRON', true); # causes strange url issue so commented out
+define('ALTERNATE_WP_CRON', false);
+
+# Auto updates
+add_filter( 'auto_update_core', '__return_true' );
+add_filter( 'auto_update_plugin', '__return_true' );
+add_filter( 'auto_update_theme', '__return_true' );
