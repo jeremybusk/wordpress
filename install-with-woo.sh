@@ -21,6 +21,7 @@ tmp_dir=$(mktemp -t -d "wordpress".XXXXXXXXXX) \
 cd "${tmp_dir}"
 
 sudo apt-get update
+sudo apt-get install -y curl
 sudo apt-get install -y mariadb-server mariadb-client
 sudo apt-get install -y nginx-extras php-fpm
 
