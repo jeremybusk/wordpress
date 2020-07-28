@@ -1,0 +1,25 @@
+#!/bin/bash
+# Tests for Numifex VM
+set -ex
+
+cd /var/www/html/
+
+sudo apt-get update 
+sudo apt-get install -y curl
+
+echo "=== Running CI Tests ==="
+
+sudo mysql -u root <<EOF
+SHOW DATABASES;
+EOF
+
+curl -s --insecure https://localhost/ \
+    | grep MyhostText \
+    || { echo "E: Incorrect api output on https tcp/443." ; exit 1; }
+
+sudo ss -lntp \
+    | grep 443 \
+    || { echo "E: Listener does not exist on port tcp/443." ; exit 1; }
+
+wp wc shop_order list --customer=1 --user=1 --fields=id,status
+wp wc customer list --user=1 --fields=id,email
