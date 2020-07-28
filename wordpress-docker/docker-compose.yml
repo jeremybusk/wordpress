@@ -16,7 +16,7 @@ mysql:
     volumes:
         - ./mysql:/var/lib/mysql
     environment:
-        - MYSQL_ROOT_PASSWORD=demo
+        - MYSQL_ROOT_PASSWORD=ChangeMe!!!
     restart: always
 wordpress:
     image: wordpress:5.4.2-php7.2-fpm
@@ -28,7 +28,7 @@ wordpress:
         - WORDPRESS_DB_NAME=wordpress
         - WORDPRESS_TABLE_PREFIX=wp_
         - WORDPRESS_DB_HOST=mysql
-        - WORDPRESS_DB_PASSWORD=demo
+        - WORDPRESS_DB_PASSWORD=Changeme!!!
     links:
         - mysql
     restart: always
