@@ -84,5 +84,5 @@ echo "================================================================="
 sudo apt-get update
 sudo apt-get install -y nginx python3-certbot-nginx
 sudo openssl req -x509 -nodes -days 3650 -newkey rsa:4096 -keyout /etc/ssl/private/nginx-selfsigned.key -out /etc/ssl/certs/nginx-selfsigned.crt -subj "/C=US/ST=Utah/L=Lehi/O=Example/OU=CI/CN=example.io"
-cp os-files/etc/nginx/sites-available/default /etc/nginx/sites-available/default
+cp nginx-default /etc/nginx/sites-available/default
 systemctl restart nginx
