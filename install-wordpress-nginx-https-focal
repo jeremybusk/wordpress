@@ -22,7 +22,7 @@ hostname='localhost'
 wp_directory='/var/www/html/'
 wp_admin_user='adminuser'
 wp_admin_email='adminuser@example.org'
-sitename='Numifex Test'
+sitename='MySite Test'
 siteurl="https://localhost"
 
 tmp_dir=$(mktemp -t -d "wordpress".XXXXXXXXXX) \
