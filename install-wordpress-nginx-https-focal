@@ -1,0 +1,88 @@
+#!/bin/bash
+set -e  # use -ex for debugging
+shopt -s expand_aliases
+
+. /etc/os-release
+if [[ "${VERSION_ID}" == "20.04" ]]; then
+    echo "Beginning Install"
+else
+    "Install only supports Ubuntu 20.04."
+    exit 1
+fi
+
+
+cur_user=$(whoami)
+if [[ "${cur_user}" == "root" ]]; then
+    alias wp="wp --allow-root"
+fi
+dbname='wordpress'
+dbpass='dbadmin'
+dbuser='dbadmin'
+hostname='localhost'
+wp_directory='/var/www/html/'
+wp_admin_user='adminuser'
+wp_admin_email='adminuser@example.org'
+sitename='Numifex Test'
+siteurl="https://localhost"
+
+tmp_dir=$(mktemp -t -d "wordpress".XXXXXXXXXX) \
+    || { echo "Failed to create temp file"; exit 1; }
+
+cd "${tmp_dir}"
+
+sudo apt-get update
+sudo apt-get install -y curl
+sudo apt-get install -y mariadb-server mariadb-client
+sudo apt-get install -y nginx-extras php-fpm
+
+# if ubuntu 18.04
+# sudo apt-get install -y php php-{fpm,pear,cgi,common,zip,mbstring,net-socket,gd,xml-util,mysql,gettext,bcmath}
+# php_ver=7.2
+php_ver=7.4
+sudo apt-get install -y php php-{fpm,pear,cgi,common,zip,mbstring,net-socket,gd,xml-util,mysql,bcmath}
+
+curl -s -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+php wp-cli.phar --info
+chmod +x wp-cli.phar
+sudo mv wp-cli.phar /usr/local/bin/wp
+
+# sudo rm -f "${wp_directory}"/index.nginx-debian.html
+sudo rm -rf "${wp_directory}"/*
+sudo mysql -u root <<EOF
+DROP DATABASE IF EXISTS ${dbname};
+DROP USER IF EXISTS '${dbuser}'@'localhost';
+GRANT ALL PRIVILEGES ON *.* TO '${dbuser}'@'localhost' IDENTIFIED BY '${dbpass}';
+FLUSH PRIVILEGES;
+EOF
+
+wp core download
+wp core config --dbname="${dbname}" --dbuser="${dbuser}" --dbpass="${dbpass}"
+currentdirectory=${PWD##*/}
+echo "${currentdirectory}"
+wp_admin_password=$(LC_CTYPE=C tr -dc A-Za-z0-9_\!\@\#\$\&\*\(\)-+= < /dev/urandom | head -c 12)
+wp db create
+wp core install --url="${siteurl}" --title="${sitename}" --admin_user="${wp_admin_user}" --admin_password="${wp_admin_password}" --admin_email="${wp_admin_email}"
+wp theme install twentysixteen --activate
+wp plugin install woocommerce --activate
+
+sudo cp -rp "${tmp_dir}"/* "${wp_directory}/"
+sudo chown -R www-data:www-data "${wp_directory}"
+
+sudo sed -i "s/^upload_max_filesize.*/upload_max_filesize = 50M/g" /etc/php/${php_ver}/fpm/php.ini
+sudo sed -i "s/^post_max_size.*/post_max_size = 50M/g" /etc/php/${php_ver}/fpm/php.ini
+sudo systemctl restart php${php_ver}-fpm
+
+echo "================================================================="
+echo "Installation complete. Login with below."
+echo "================================================================="
+echo "Url: https://${hostname}"
+echo "Username: ${wp_admin_user}"
+echo "Password: ${wp_admin_password}"
+echo "================================================================="
+
+
+sudo apt-get update
+sudo apt-get install -y nginx python3-certbot-nginx
+sudo openssl req -x509 -nodes -days 3650 -newkey rsa:4096 -keyout /etc/ssl/private/nginx-selfsigned.key -out /etc/ssl/certs/nginx-selfsigned.crt -subj "/C=US/ST=Utah/L=Provo/O=Pyrofex Corp/OU=CI/CN=pyrofex.io"
+cp os-files/etc/nginx/sites-available/default /etc/nginx/sites-available/default
+systemctl restart nginx
